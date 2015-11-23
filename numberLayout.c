@@ -2,20 +2,19 @@
 
 
 int initialize(int randomInit){
-    // Initialize the contoller
+    // Initialize the controller
     controller = (Controller*)malloc(sizeof(Controller));
     controller->initial = NULL;
     controller->ending = NULL;
 
-    // Initialize the weight matrix
-    createWeightMatrix(randomInit);
-
-    // Initialize the result array
-    m_resultArray = (char*)malloc(ARRAY_SIZE*sizeof(char));
-
     // Initialize bias and the its corresponding weight
     bias = 1;
     weightBias = 0;
+
+    // Initialize the weight matrix
+    createWeightMatrix(randomInit);
+
+    return 1;
 }
 
 int isEmpty(){
@@ -27,13 +26,15 @@ int isEmpty(){
 void createDigitNode(int number){
     int i, j;                           // iterators
     char** matrix;                      // matrix, according to the chosen digit
+    char* outputArray;
     DigitNode* digitNode;               // node
 
 
     matrix = (char**)malloc(ROWS*sizeof(char*));
+    outputArray = (char*)malloc(4*sizeof(char));
 
     for(i=0;i<ROWS;i++){
-        matrix[j] = (char*)malloc(COLUMNS*sizeof(char));
+        matrix[i] = (char*)malloc(COLUMNS*sizeof(char));
     }
 
     // Zero full matrix
@@ -50,36 +51,100 @@ void createDigitNode(int number){
             createMatrixZero(matrix);
 
             // Define the desired output
-            m_resultArray[0] = 0;
-            m_resultArray[1] = 0;
-            m_resultArray[2] = 0;
-            m_resultArray[3] = 0;
+            outputArray[0] = 0;
+            outputArray[1] = 0;
+            outputArray[2] = 0;
+            outputArray[3] = 0;
             break;
         case 1:
             // Represent the digit 1 in the matrix
             createMatrixOne(matrix);
 
             // Define the desired output
-            m_resultArray[0] = 0;
-            m_resultArray[1] = 0;
-            m_resultArray[2] = 0;
-            m_resultArray[3] = 1;
+            outputArray[0] = 0;
+            outputArray[1] = 0;
+            outputArray[2] = 0;
+            outputArray[3] = 1;
             break;
         case 2:
+            // Represent the digit 2 in the matrix
+            createMatrixTwo(matrix);
+
+            // Define the desired output
+            outputArray[0] = 0;
+            outputArray[1] = 0;
+            outputArray[2] = 1;
+            outputArray[3] = 0;
             break;
         case 3:
+            // Represent the digit 3 in the matrix
+            createMatrixThree(matrix);
+
+            // Define the desired output
+            outputArray[0] = 0;
+            outputArray[1] = 0;
+            outputArray[2] = 1;
+            outputArray[3] = 1;
             break;
         case 4:
+            // Represent the digit 4 in the matrix
+            createMatrixFour(matrix);
+
+            // Define the desired output
+            outputArray[0] = 0;
+            outputArray[1] = 1;
+            outputArray[2] = 0;
+            outputArray[3] = 0;
             break;
         case 5:
+            // Represent the digit 5 in the matrix
+            createMatrixFive(matrix);
+
+            // Define the desired output
+            outputArray[0] = 0;
+            outputArray[1] = 1;
+            outputArray[2] = 0;
+            outputArray[3] = 1;
             break;
         case 6:
+            // Represent the digit 6 in the matrix
+            createMatrixSix(matrix);
+
+            // Define the desired output
+            outputArray[0] = 0;
+            outputArray[1] = 1;
+            outputArray[2] = 1;
+            outputArray[3] = 0;
             break;
         case 7:
+            // Represent the digit 7 in the matrix
+            createMatrixSeven(matrix);
+
+            // Define the desired output
+            outputArray[0] = 0;
+            outputArray[1] = 1;
+            outputArray[2] = 1;
+            outputArray[3] = 1;
             break;
         case 8:
+            // Represent the digit 8 in the matrix
+            createMatrixEight(matrix);
+
+            // Define the desired output
+            outputArray[0] = 1;
+            outputArray[1] = 0;
+            outputArray[2] = 0;
+            outputArray[3] = 0;
             break;
         case 9:
+            // Represent the digit 9 in the matrix
+            createMatrixNine(matrix);
+
+            // Define the desired output
+            outputArray[0] = 1;
+            outputArray[1] = 0;
+            outputArray[2] = 0;
+            outputArray[3] = 1;
             break;
         default:
             printf("Digit not supported!\n");
@@ -87,24 +152,28 @@ void createDigitNode(int number){
     }
 
 
-    if(isEmpty()){
+    // Create new node
+    digitNode = (DigitNode*)malloc(sizeof(DigitNode));
 
-        digitNode = (DigitNode*)malloc(sizeof(DigitNode));
-        digitNode->matrix = matrix;
-        digitNode->next = NULL;
+    // Feed the matrix of the node
+    digitNode->matrix = matrix;
+
+    // Feed the desired output array of the node
+    digitNode->desiredOutput = outputArray;
+
+    // Insert the new node in the circular list
+    insertNode(digitNode);
+}
+
+void insertNode(DigitNode* digitNode){
+
+    if(isEmpty()){
+        digitNode->next = digitNode;
 
         controller->initial = digitNode;
         controller->ending = digitNode;
-
-        //free(matrix);                                 // <<<<<<<<<<<<<<<<<<<<< try this later
     }
     else{
-        // Create new node
-        digitNode = (DigitNode*)malloc(sizeof(DigitNode));
-
-        // Feed the matrix of the node
-        digitNode->matrix = matrix;
-
         // Circular list
         digitNode->next = controller->initial;
 
@@ -113,17 +182,9 @@ void createDigitNode(int number){
 
         // Updates the ending pointer of the list, to the recently created node
         controller->ending = digitNode;
-
-        // the last node to be tested will be the last node of the list
-        last = controller->ending;
     }
 
-    /*for(i=0;i<ROWS;i++){
-        for(j=0;j<COLUMNS;j++){
-            printf("%d | ", m_numberMatrix[i][j]);
-        }
-        printf("\n");
-    }*/
+    //free(matrix);                                 // <<<<<<<<<<<<<<<<<<<<< try this later
 }
 
 void createWeightMatrix(int randomInit){
@@ -135,78 +196,27 @@ void createWeightMatrix(int randomInit){
         m_weightMatrix[i] = (char*)malloc(COLUMNS*sizeof(char));
     }
 
-    for(i=0;i<ROWS;i++){
-        for(j=0;j<COLUMNS;j++){
-            m_weightMatrix[i][j] = 0;
-        }
-    }
 
-
-    // If the user wants random initialization, do it
-    // Else, let it as it is
+    // If the user wants random initialization, do it man!
+    // Else, let the zeros rule the world!
     if(randomInit){
-        // Random initialization between 0 and 10
+
         srand((unsigned)time(NULL));
 
-        switch(number){
-            case 0:
-                m_weightMatrix[0][1] = rand()%10;
-                m_weightMatrix[0][2] = rand()%10;
-                m_weightMatrix[0][3] = rand()%10;
-                m_weightMatrix[1][0] = rand()%10;
-                m_weightMatrix[2][0] = rand()%10;
-                m_weightMatrix[3][0] = rand()%10;
-                m_weightMatrix[4][0] = rand()%10;
-                m_weightMatrix[1][4] = rand()%10;
-                m_weightMatrix[2][4] = rand()%10;
-                m_weightMatrix[3][4] = rand()%10;
-                m_weightMatrix[4][4] = rand()%10;
-                m_weightMatrix[5][1] = rand()%10;
-                m_weightMatrix[5][2] = rand()%10;
-                m_weightMatrix[5][3] = rand()%10;
+        for(i=0;i<ROWS;i++){
+            for(j=0;j<COLUMNS;j++){
+                m_weightMatrix[i][j] = rand()%10;
+            }
+        }
 
-                weightBias = rand()%10;
-                break;
-            case 1:
-                m_weightMatrix[0][2] = rand()%10;
-                m_weightMatrix[1][2] = rand()%10;
-                m_weightMatrix[2][2] = rand()%10;
-                m_weightMatrix[3][2] = rand()%10;
-                m_weightMatrix[4][2] = rand()%10;
-                m_weightMatrix[5][2] = rand()%10;
-                m_weightMatrix[5][0] = rand()%10;
-                m_weightMatrix[5][1] = rand()%10;
-                m_weightMatrix[5][3] = rand()%10;
-                m_weightMatrix[5][4] = rand()%10;
-                m_weightMatrix[1][1] = rand()%10;
+    }else{
 
-                weightBias = rand()%10;
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            case 4:
-                break;
-            case 5:
-                break;
-            case 6:
-                break;
-            case 7:
-                break;
-            case 8:
-                break;
-            case 9:
-                break;
+        for(i=0;i<ROWS;i++){
+            for(j=0;j<COLUMNS;j++){
+                m_weightMatrix[i][j] = 0;
+            }
         }
     }
-
-    /*for(i=0;i<ROWS;i++){
-        for(j=0;j<COLUMNS;j++){
-            printf("%d | ", m_weightMatrix[i][j]);
-        }
-        printf("\n");
-    }*/
 }
 
 void createMatrixZero(char** matrix){
@@ -227,6 +237,7 @@ void createMatrixZero(char** matrix){
 }
 
 void createMatrixOne(char** matrix){
+
     matrix[0][2] = 1;
     matrix[1][2] = 1;
     matrix[2][2] = 1;
@@ -239,3 +250,120 @@ void createMatrixOne(char** matrix){
     matrix[5][4] = 1;
     matrix[1][1] = 1;
 }
+
+void createMatrixTwo(char** matrix){
+/*
+    Graphic representation
+
+    * 0 0 0 *
+    * 0 * 0 *
+    * * * 0 *
+    * * 0 * *
+    * 0 * * *
+    0 0 0 0 0
+*/
+
+    matrix[0][1] = 1;
+    matrix[0][2] = 1;
+    matrix[0][3] = 1;
+    matrix[1][1] = 1;
+    matrix[1][3] = 1;
+    matrix[2][3] = 1;
+    matrix[3][2] = 1;
+    matrix[4][1] = 1;
+    matrix[5][0] = 1;
+    matrix[5][1] = 1;
+    matrix[5][2] = 1;
+    matrix[5][3] = 1;
+    matrix[5][4] = 1;
+}
+void
+
+void createMatrixThree(char** matrix){
+
+    /*
+        Graphical Representation
+
+        * 0 0 0 0
+        * * * * 0
+        * 0 0 0 0
+        * * * * 0
+        * * * * 0
+        * 0 0 0 0
+    */
+
+    matrix[0][1] = 1;
+    matrix[0][2] = 1;
+    matrix[0][3] = 1;
+    matrix[0][4] = 1;
+    matrix[1][4] = 1;
+    matrix[2][1] = 1;
+    matrix[2][2] = 1;
+    matrix[2][3] = 1;
+    matrix[2][4] = 1;
+    matrix[3][4] = 1;
+    matrix[4][4] = 1;
+    matrix[5][1] = 1;
+    matrix[5][2] = 1;
+    matrix[5][3] = 1;
+    matrix[5][4] = 1;
+}
+
+void createMatrixFour(char** matrix){
+
+    /*
+        Graphical Representation
+
+        0 * * 0 *
+        0 * * 0 *
+        0 0 0 0 *
+        * * * 0 *
+        * * * 0 *
+        * * * 0 *
+    */
+
+    matrix[0][0] = 1;
+    matrix[0][3] = 1;
+    matrix[1][0] = 1;
+    matrix[1][3] = 1;
+    matrix[2][0] = 1;
+    matrix[2][3] = 1;
+    matrix[3][0] = 1;
+    matrix[3][1] = 1;
+    matrix[3][2] = 1;
+    matrix[3][3] = 1;
+    matrix[4][3] = 1;
+    matrix[5][3] = 1;
+}
+
+void createMatrixFive(char** matrix){
+
+    /*
+        Graphical Representation
+
+        * 0 0 0 0
+        * 0 * * *
+        * 0 0 0 0
+        * * * * 0
+        * * * * 0
+
+        * 0 0 0 0
+    */
+
+    matrix[0][1] = 1;
+    matrix[0][2] = 1;
+    matrix[0][3] = 1;
+    matrix[0][4] = 1;
+    matrix[1][1] = 1;
+    matrix[2][1] = 1;
+    matrix[2][2] = 1;
+    matrix[2][3] = 1;
+    matrix[2][4] = 1;
+    matrix[3][4] = 1;
+    matrix[4][4] = 1;
+    matrix[5][1] = 1;
+    matrix[5][2] = 1;
+    matrix[5][3] = 1;
+    matrix[5][4] = 1;
+}
+

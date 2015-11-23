@@ -11,6 +11,7 @@
 
 typedef struct digitNode{
     char** matrix;
+    char* desiredOutput;
     struct digitNode* next;
 }DigitNode;
 
@@ -23,12 +24,16 @@ typedef struct controller{
  DigitNode *last;               // Points to the last node to be computed
 
 char** m_weightMatrix;
-char* m_resultArray;
 char bias;
 char weightBias;
 
-char** createNumberMatrix(int number);
-char** createWeightMatrix(int number, int randomInit);
+void createDigitNode(int number);
+void createMatrixZero(char** matrix);
+void createMatrixOne(char** matrix);
+void createWeightMatrix(int randomInit);
+void insertNode(DigitNode* digitNode);
+int isEmpty();
+int initialize(int randomInit);
 
 
 #endif
