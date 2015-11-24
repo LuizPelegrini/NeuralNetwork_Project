@@ -7,7 +7,7 @@
 
 #define ROWS 6
 #define COLUMNS 5
-#define ARRAY_SIZE 4
+#define ARRAY_SIZE 6
 
 typedef struct digitNode{
     char** matrix;
@@ -20,20 +20,35 @@ typedef struct controller{
     DigitNode* ending;
 }Controller;
 
- Controller *controller;        // Controller to help find the last node and the first node
- DigitNode *last;               // Points to the last node to be computed
+typedef struct weightMatrix{
+    char **weightMatrix;
+    char weightBias;
+    struct weightMatrix* next;
+}WeightMatrix;
 
-char** m_weightMatrix;
+typedef struct weightMatrixController{
+    WeightMatrix *first;
+    int numElements;
+}WeightMatrixController;
+
+Controller *controller;                     // Controller to help find the last node and the first node
+WeightMatrixController *weightController;
+
 char bias;
-char weightBias;
 
 void createDigitNode(int number);
 void createMatrixZero(char** matrix);
 void createMatrixOne(char** matrix);
+void createMatrixTwo(char** matrix);
+void createMatrixThree(char** matrix);
+void createMatrixFour(char** matrix);
+void createMatrixFive(char** matrix);
 void createWeightMatrix(int randomInit);
 void insertNode(DigitNode* digitNode);
+void printWeightValues();
+void cleanMemory();
 int isEmpty();
-int initialize(int randomInit);
+int initialize();
 
 
 #endif

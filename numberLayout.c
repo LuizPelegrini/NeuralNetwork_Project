@@ -1,24 +1,29 @@
 #include "numberLayout.h"
 
 
-int initialize(int randomInit){
+int initialize(){
     // Initialize the controller
     controller = (Controller*)malloc(sizeof(Controller));
     controller->initial = NULL;
     controller->ending = NULL;
 
-    // Initialize bias and the its corresponding weight
-    bias = 1;
-    weightBias = 0;
+    weightController = (WeightMatrixController*)malloc(sizeof(WeightMatrixController));
+    weightController->first = NULL;
+    weightController->numElements = 0;
 
-    // Initialize the weight matrix
-    createWeightMatrix(randomInit);
+    bias = 1;
 
     return 1;
 }
 
 int isEmpty(){
     if(controller->initial==NULL)
+        return 1;
+    return 0;
+}
+
+int weightListIsEmpty(){
+    if(weightController->numElements == 0)
         return 1;
     return 0;
 }
@@ -31,7 +36,7 @@ void createDigitNode(int number){
 
 
     matrix = (char**)malloc(ROWS*sizeof(char*));
-    outputArray = (char*)malloc(4*sizeof(char));
+    outputArray = (char*)malloc(6*sizeof(char));
 
     for(i=0;i<ROWS;i++){
         matrix[i] = (char*)malloc(COLUMNS*sizeof(char));
@@ -51,10 +56,12 @@ void createDigitNode(int number){
             createMatrixZero(matrix);
 
             // Define the desired output
-            outputArray[0] = 0;
+            outputArray[0] = 1;
             outputArray[1] = 0;
             outputArray[2] = 0;
             outputArray[3] = 0;
+            outputArray[4] = 0;
+            outputArray[5] = 0;
             break;
         case 1:
             // Represent the digit 1 in the matrix
@@ -62,9 +69,11 @@ void createDigitNode(int number){
 
             // Define the desired output
             outputArray[0] = 0;
-            outputArray[1] = 0;
+            outputArray[1] = 1;
             outputArray[2] = 0;
-            outputArray[3] = 1;
+            outputArray[3] = 0;
+            outputArray[4] = 0;
+            outputArray[5] = 0;
             break;
         case 2:
             // Represent the digit 2 in the matrix
@@ -75,6 +84,8 @@ void createDigitNode(int number){
             outputArray[1] = 0;
             outputArray[2] = 1;
             outputArray[3] = 0;
+            outputArray[4] = 0;
+            outputArray[5] = 0;
             break;
         case 3:
             // Represent the digit 3 in the matrix
@@ -83,8 +94,10 @@ void createDigitNode(int number){
             // Define the desired output
             outputArray[0] = 0;
             outputArray[1] = 0;
-            outputArray[2] = 1;
+            outputArray[2] = 0;
             outputArray[3] = 1;
+            outputArray[4] = 0;
+            outputArray[5] = 0;
             break;
         case 4:
             // Represent the digit 4 in the matrix
@@ -92,9 +105,11 @@ void createDigitNode(int number){
 
             // Define the desired output
             outputArray[0] = 0;
-            outputArray[1] = 1;
+            outputArray[1] = 0;
             outputArray[2] = 0;
             outputArray[3] = 0;
+            outputArray[4] = 1;
+            outputArray[5] = 0;
             break;
         case 5:
             // Represent the digit 5 in the matrix
@@ -102,49 +117,11 @@ void createDigitNode(int number){
 
             // Define the desired output
             outputArray[0] = 0;
-            outputArray[1] = 1;
-            outputArray[2] = 0;
-            outputArray[3] = 1;
-            break;
-        case 6:
-            // Represent the digit 6 in the matrix
-            createMatrixSix(matrix);
-
-            // Define the desired output
-            outputArray[0] = 0;
-            outputArray[1] = 1;
-            outputArray[2] = 1;
-            outputArray[3] = 0;
-            break;
-        case 7:
-            // Represent the digit 7 in the matrix
-            createMatrixSeven(matrix);
-
-            // Define the desired output
-            outputArray[0] = 0;
-            outputArray[1] = 1;
-            outputArray[2] = 1;
-            outputArray[3] = 1;
-            break;
-        case 8:
-            // Represent the digit 8 in the matrix
-            createMatrixEight(matrix);
-
-            // Define the desired output
-            outputArray[0] = 1;
             outputArray[1] = 0;
             outputArray[2] = 0;
             outputArray[3] = 0;
-            break;
-        case 9:
-            // Represent the digit 9 in the matrix
-            createMatrixNine(matrix);
-
-            // Define the desired output
-            outputArray[0] = 1;
-            outputArray[1] = 0;
-            outputArray[2] = 0;
-            outputArray[3] = 1;
+            outputArray[4] = 0;
+            outputArray[5] = 1;
             break;
         default:
             printf("Digit not supported!\n");
@@ -187,13 +164,34 @@ void insertNode(DigitNode* digitNode){
     //free(matrix);                                 // <<<<<<<<<<<<<<<<<<<<< try this later
 }
 
+void insertWeightMatrix(WeightMatrix *weightMatrix){
+    WeightMatrix *aux;
+
+    if(weightListIsEmpty()){
+        weightController->first = weightMatrix;
+    }
+    else{
+        aux = weightController->first;
+
+        while(aux->next != NULL)
+            aux = aux->next;
+
+        aux->next = weightMatrix;
+    }
+
+    weightController->numElements++;
+}
+
 void createWeightMatrix(int randomInit){
     int i, j;
+    WeightMatrix *weightMatrix;
 
-    m_weightMatrix = (char**)malloc(ROWS*sizeof(char*));
+    weightMatrix = (WeightMatrix*)malloc(sizeof(WeightMatrix));
+
+    weightMatrix->weightMatrix = (char**)malloc(ROWS*sizeof(char*));
 
     for(i=0;i<ROWS;i++){
-        m_weightMatrix[i] = (char*)malloc(COLUMNS*sizeof(char));
+        weightMatrix->weightMatrix[i] = (char*)malloc(COLUMNS*sizeof(char));
     }
 
 
@@ -205,18 +203,26 @@ void createWeightMatrix(int randomInit){
 
         for(i=0;i<ROWS;i++){
             for(j=0;j<COLUMNS;j++){
-                m_weightMatrix[i][j] = rand()%10;
+                weightMatrix->weightMatrix[i][j] = rand()%10;
             }
         }
 
+        // Initialize bias weight
+        weightMatrix->weightBias = rand()%10;
     }else{
 
         for(i=0;i<ROWS;i++){
             for(j=0;j<COLUMNS;j++){
-                m_weightMatrix[i][j] = 0;
+                weightMatrix->weightMatrix[i][j] = 0;
             }
         }
+
+        // Initialize bias weight
+        weightMatrix->weightBias = 0;
     }
+
+    weightMatrix->next = NULL;
+    insertWeightMatrix(weightMatrix);
 }
 
 void createMatrixZero(char** matrix){
@@ -277,7 +283,6 @@ void createMatrixTwo(char** matrix){
     matrix[5][3] = 1;
     matrix[5][4] = 1;
 }
-void
 
 void createMatrixThree(char** matrix){
 
@@ -346,7 +351,6 @@ void createMatrixFive(char** matrix){
         * 0 0 0 0
         * * * * 0
         * * * * 0
-
         * 0 0 0 0
     */
 
@@ -365,5 +369,51 @@ void createMatrixFive(char** matrix){
     matrix[5][2] = 1;
     matrix[5][3] = 1;
     matrix[5][4] = 1;
+}
+
+void printWeightValues(){
+    WeightMatrix* aux;
+    int i, j, k = 0;
+
+    aux = weightController->first;
+
+    do{
+        printf("**************************\n");
+        printf("Weight Matrix >> %d <<\n", k++);
+        printf("**************************\n");
+        for(i=0;i<ROWS;i++){
+            for(j=0;j<COLUMNS;j++){
+                printf("%d | ", aux->weightMatrix[i][j]);
+            }
+            printf("\n");
+        }
+
+        printf("\n\n");
+    }while((aux = aux->next) != NULL);
+
+}
+
+void cleanMemory(){
+    int i;
+
+    DigitNode* aux;
+    aux = controller->initial->next;
+/*
+    for(i=0;i<ROWS;i++){
+        free(m_weightMatrix[i]);
+    }
+
+    free(m_weightMatrix);*/
+
+    while(aux != controller->ending){
+        free(controller->initial);
+        controller->initial = aux;
+        aux = aux->next;
+    }
+
+    free(controller->initial);
+    free(controller->ending);
+    free(controller);
+
 }
 
