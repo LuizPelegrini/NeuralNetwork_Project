@@ -5,68 +5,51 @@
 
 int main()
 {
-    /*
-    char** numberZeroMatrix;                                        // Matrix to represent the digit 0
-    char** numberOneMatrix;                                         // Matrix to represent the digit 1
-    char** weightMatrix;
-    char result;
 
-    numberZeroMatrix = createNumberMatrix(0);
-    numberOneMatrix = createNumberMatrix(1);
-    weightMatrix = createWeightMatrix(0, 0);
+    int op, count;
 
-
-    // The Weight matrix has not changed yet
-    weightMatrixChanged = 0;
-
-    result = generateOutput(numberZeroMatrix, weightMatrix, bias, weightBias);
-
-
-    while(weightMatrixChanged == 1 || !NAO_CHGOU_NO_FINAL){
-
-    }
-    */
-
-    DigitNode *aux, *dirty;
-    char *result;
-    int clean = 0;
-    int i, j;
-
-    initialize(0);
-    createDigitNode(0);
-    createDigitNode(1);
-
-    aux = controller->initial;
-    dirty = controller->ending;
-
-    // Verify the remaining nodes
     do{
-        result = generateOutput(aux->matrix, m_weightMatrix, bias, weightBias, 1);
+        printf("Qual exercicio?\n");
+        printf("1. Exercicio 1\n");
+        printf("2. Exercicio 2\n");
+        printf("3. Exercicio 3\n");
+        printf("4. EXIT\n");
+        printf("Opcao: ");
+        scanf("%d", &op);
 
-        printf("result[0] = %d\n", result[0]);
-        printf("aux->desiredOutput[3] = %d\n", aux->desiredOutput[3]);
+        switch(op){
+            case 1:         // 1 Neuron
+                count = 1;
+                initialize();                           // Initialize my data structures
 
-        if(result[0] != aux->desiredOutput[3]){
-            changeWeights(aux->matrix, m_weightMatrix, result[0], aux->desiredOutput[3]);
-            dirty = aux;
-            aux = aux->next;
-        }else{
-            if(aux == dirty)
-                clean = 1;
-            aux = aux->next;
+                createWeightMatrix(0);                  // Weight matrix for neuron 1
+
+                createDigitNode(0);                     // Create digit 0
+                createDigitNode(1);                     // Create digit 1
+
+                findNeuronWeightValues(count);          // Find the weight values for each matrix
+                printWeightValues();                    // Print the results
+
+                cleanMemory();                          // Clean memory leftovers
+                break;
+            case 2:         // 2 Neurons
+                count = 0;
+                initialize();                           // Initialize my data structures
+
+                createWeightMatrix(0);                  // Weight matrix for neuron 1
+                createWeightMatrix(0);                  // Weight matrix for neuron 2
+
+                createDigitNode(0);                     // Create digit 0
+                createDigitNode(1);                     // Create digit 1
+
+                findNeuronWeightValues(count);          // Find the weight values for each matrix
+                printWeightValues();                    // Print the results
+
+                cleanMemory();                          // Clean memory leftovers
+                break;
+            default:
+                break;
         }
-    }while(!clean);
-
-
-    // Result Weight Matrix
-    for(i=0;i<ROWS;i++){
-        for(j=0;j<COLUMNS;j++){
-            printf("%d | ", m_weightMatrix[i][j]);
-        }
-        printf("\n");
-    }
-    printf("Weight Bias = %d\n", weightBias);
-    printf("\n");
-
+    }while(op!=4);
     return 0;
 }
